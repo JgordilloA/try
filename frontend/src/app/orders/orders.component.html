@@ -1,0 +1,69 @@
+@if (error) {
+  <p class="alert" role="alert">{{ error }}</p>
+}
+
+<section class="card">
+  <h2>Nueva orden</h2>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label>
+      Paciente
+      <select formControlName="idPatient">
+        <option [ngValue]="null" disabled>Seleccione un paciente</option>
+        @for (p of patients; track p.idPatient) {
+          <option [ngValue]="p.idPatient">{{ p.namePatient }}</option>
+        }
+      </select>
+    </label>
+    @if (form.controls.idPatient.touched && form.controls.idPatient.invalid) {
+      <small class="field-error">El paciente es obligatorio.</small>
+    }
+
+    <label>
+      Fecha de atención
+      <input type="date" formControlName="dateAtention" [max]="today" />
+    </label>
+    @if (form.controls.dateAtention.touched && form.controls.dateAtention.invalid) {
+      <small class="field-error">Ingrese una fecha válida que no sea futura.</small>
+    }
+
+    <fieldset>
+      <legend>Exámenes</legend>
+      @for (e of exams; track e.idExam) {
+        <label class="check">
+          <input type="checkbox" (change)="toggleExam(e.idExam, $any($event.target).checked)" />
+          {{ e.codeExam }} - {{ e.nameExam }}
+        </label>
+      }
+    </fieldset>
+    @if (form.controls.idExams.touched && form.controls.idExams.invalid) {
+      <small class="field-error">Seleccione al menos un examen.</small>
+    }
+
+    <button type="submit">Crear orden</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Órdenes</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Paciente</th><th>Fecha</th><th>Exámenes</th></tr>
+    </thead>
+    <tbody>
+      @for (o of orders; track o.idOrder) {
+        <tr>
+          <td>{{ o.idOrder }}</td>
+          <td>{{ o.namePatient }}</td>
+          <td>{{ o.dateAtention | date: 'dd/MM/yyyy' }}</td>
+          <td>
+            @for (e of o.exams; track e.idExam) {
+              <span class="tag">{{ e.codeExam }} {{ e.nameExam }}</span>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="4">No hay órdenes registradas.</td></tr>
+      }
+    </tbody>
+  </table>
+</section>
